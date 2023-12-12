@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { requestNotificationPermission, showNotification } from '@/lib/utils';
 
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ export default function TimerDisplay() {
   useEffect(() => {
     // reset isRunning
     useTimerStore.persist.rehydrate();
+
+    requestNotificationPermission();
   }, []);
 
   const {
@@ -39,22 +41,22 @@ export default function TimerDisplay() {
           };
         });
       }, 1000);
+      if (currentTimerMode == 'focus' && time === 5 * 60) {
+        showNotification('5 minutes more');
+      }
     } else if (isRunning && time === 0) {
-      console.log('done');
+      if (currentTimerMode == 'focus') {
+        showNotification('Now you can relax');
+      }
       switchToNextMode();
     }
-    // else if (isRunning && currentTimerMode.time === 0) {
-    //   transitionToNextMode();
-    // }
 
     return () => clearInterval(interval);
   }, [isRunning, time]);
 
-  const handleClick = () => {};
-
   return (
     <div className='w-full flex justify-center items-center min-h-screen'>
-      <Card className={cn('w-96')}>
+      <Card className='w-96 m-2'>
         <CardContent className='p-2'>
           <div
             className='h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground grid w-full grid-cols-3 mb-4'

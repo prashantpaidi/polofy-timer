@@ -69,7 +69,6 @@ export const useTimerStore = create<TimerState>()(
         switchToNextMode: () =>
           set((state) => {
             const { cycleCount, interval, currentTimerMode, time } = state;
-            console.log(1);
             let nextMode: 'focus' | 'shortBreak' | 'longBreak';
             let newCycleCount: number = cycleCount;
             let newTime;
