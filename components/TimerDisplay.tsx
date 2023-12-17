@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { useTimerStore } from '@/store/useTimerStore';
 import TimerCountdown from './TimerCountdown';
 import TimerControl from './TimerControl';
+// import { DatabaseTest } from '@/lib/db';
 export default function TimerDisplay() {
   useEffect(() => {
     // reset isRunning
     useTimerStore.persist.rehydrate();
 
     requestNotificationPermission();
+    // DatabaseTest();
   }, []);
 
   const {
