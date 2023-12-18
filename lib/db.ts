@@ -1,3 +1,6 @@
+import { users } from '@/db/schema/users';
+import { eq } from 'drizzle-orm';
+
 import { neon as connect, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 
