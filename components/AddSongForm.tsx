@@ -3,22 +3,16 @@ import React, { ChangeEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
 
 //ui
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 // storage
 import { storage } from '@/lib/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { uploadSong } from '@/app/add-song/uploadSongDB';
 
 const SongValidation = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -54,24 +48,31 @@ export default function AddSongForm() {
     console.log('Song File', songFile);
     console.log('Song Image File', songImageFile);
 
+    let songURL: string = '';
+    let imageURL: string = '';
     if (songFile) {
-      await uploadFile(songFile, 'songs');
+      songURL = await uploadFile(songFile, 'songs');
     }
     if (songImageFile) {
-      await uploadFile(songImageFile, 'images');
+      imageURL = await uploadFile(songImageFile, 'images');
     }
+    if (songURL !== '' && values.title !== '')
+      uploadSong(values.title, songURL, imageURL);
   };
 
-  const uploadFile = (file: File, type: String) => {
+  const uploadFile = (file: File, type: string): Promise<string> => {
     if (file) {
       const fileRef = ref(storage, `lofi/${type}/${file.name}`);
-      uploadBytes(fileRef, file).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          console.log('url', url);
+
+      return uploadBytes(fileRef, file)
+        .then((snapshot) => getDownloadURL(snapshot.ref))
+        .then((url) => {
+          // console.log('url', url);
+          return url;
         });
-      });
     } else {
       console.log('No file');
+      return Promise.reject('No file provided');
     }
   };
 
