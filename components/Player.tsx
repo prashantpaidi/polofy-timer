@@ -3,12 +3,17 @@ import { useEffect, useRef, useState } from 'react';
 import useMusicPlayerStore from '../store/useMusicPlayerStore';
 import { FaPlay, FaPause } from 'react-icons/fa';
 import { MdSkipNext, MdSkipPrevious } from 'react-icons/md';
+import { getSongList } from '@/app/add-song/getSongList';
+type Song = {
+  songURL: string | null;
+};
 
-const trackList: string[] = [
-  'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3?_=1',
-  'https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_100KB_MP3.mp3',
-  // Add more track URLs here
-];
+let trackList: Song[];
+// const trackList: string[] = [
+//   'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3?_=1',
+//   'https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_100KB_MP3.mp3',
+//   // Add more track URLs here
+// ];
 
 const MusicPlayer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -28,6 +33,16 @@ const MusicPlayer: React.FC = () => {
       audio.pause();
     }
   }, [isPlaying, audioRef.current, currentTrackIndex]);
+
+  useEffect(() => {
+    // let trackList;
+    const fetchData = async () => {
+      trackList = await getSongList();
+      // Do something with the 'list' here
+    };
+
+    fetchData();
+  }, []);
 
   const handlePlayPause = () => {
     if (isPlaying) pause();
@@ -61,6 +76,7 @@ const MusicPlayer: React.FC = () => {
   const metadataLoadHandler = () => {
     setDuration(Number(audioRef?.current?.duration));
   };
+
   function formatTime(time: any) {
     if (time && !isNaN(time)) {
       const minutes =
@@ -83,7 +99,11 @@ const MusicPlayer: React.FC = () => {
         {/* Audio Element */}
         <audio
           ref={audioRef}
-          key={trackList[currentTrackIndex]}
+          key={
+            trackList && trackList.length > 0
+              ? trackList[currentTrackIndex]?.songURL
+              : ''
+          }
           onEnded={() => {
             handleNextTrack();
           }}
@@ -93,7 +113,12 @@ const MusicPlayer: React.FC = () => {
           onError={(e) => console.error('Audio Error:', e)}
           onLoadedMetadata={metadataLoadHandler}
         >
-          <source src={trackList[currentTrackIndex]} type='audio/mpeg' />
+          {trackList && trackList.length > 0 && (
+            <source
+              src={trackList[currentTrackIndex]?.songURL || ''}
+              type='audio/mpeg'
+            />
+          )}
         </audio>
 
         {/* Player Controls */}
@@ -120,8 +145,8 @@ const MusicPlayer: React.FC = () => {
         <input
           type='range'
           min='0'
-          max='100'
           value={progress}
+          max={duration}
           onChange={handleSeekChange}
           className='w-72 hidden md:block'
         />
