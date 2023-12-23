@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
 import NextAuth from 'next-auth';
-import GitHub from 'next-auth/providers/GitHub';
-import Google from 'next-auth/providers/Google';
+import GitHubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
 import { db } from '@/lib/db';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { users } from '@/db/schema/users';
@@ -11,7 +11,7 @@ export const authConfig: NextAuthConfig = {
   adapter: DrizzleAdapter(db),
 
   providers: [
-    GitHub({
+    GitHubProvider({
       clientId: process.env.AUTH_GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET,
       profile(profile) {
@@ -24,12 +24,11 @@ export const authConfig: NextAuthConfig = {
         };
       },
     }),
-    Google({
+    GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       profile(profile) {
         return {
-          ...profile,
           id: profile.sub,
           name: profile.name,
           email: profile.email,
